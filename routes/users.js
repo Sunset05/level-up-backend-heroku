@@ -23,7 +23,6 @@ router.post('/users', (request, response) => {
 
 router.post('/login', (request, response) => {
     const { user } = request.body;
-    console.log(request.body)
 
     User.query()
         .findOne({ username: user.username || '' })
