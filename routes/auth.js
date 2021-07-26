@@ -24,4 +24,4 @@ const authenticate = (request,response, next) => {
     }
 }
 
-module.exports =  { authenticate } ;
+module.exports =  { authenticate };
