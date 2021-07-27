@@ -9,4 +9,12 @@ router.get('/listings', authenticate, (request, response) => {
         .then(listings => response.json(listings));
 });
 
+router.post('/listings', authenticate, (request, response) => {
+    const { listing } = request.body;
+
+    Listing.query()
+        .insert({...listing, userId: request.user.id})
+        .then(newListing => response.status(201).send(newListing))
+});
+
 module.exports = { listingsRouter: router };

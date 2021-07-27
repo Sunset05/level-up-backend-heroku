@@ -7,25 +7,59 @@ const { User }  = require('../models/user');
 
 router.get('/users', authenticate, (request, response) => {
     User.query()
+        .withGraphFetched('listings')
         .then(users => response.json(users));
 });
 
+router.get('/users/:id', authenticate, (request, response) => {
+    User.query()
+        .findById(request.params.id)
+        .withGraphFetched('listings')
+        .then(user => response.status(200).send(user))
+})
+
+router.get('/profile', authenticate, (request, response) => {
+    const currentUser  = request.user
+    console.log(currentUser)
+    User.query()
+        .findById(currentUser.id)
+        .withGraphFetched('listings')
+        .then(currentUserData => 
+            response.status(200)
+            .send({user: {
+                id: currentUserData.id,
+                username: currentUserData.username,
+                listings: currentUserData.listings
+                }}
+            )
+        )
+    
+})
+
 router.post('/users', (request, response) => {
     const { user } = request.body;
-    const saltRounds = 12;
-    bcrypt.hash(user.password, saltRounds)
-        .then(hashedPassword => {
-            User.query()
-                .insert({ username: user.username, password_digest: hashedPassword })
-                .then(newUser => response.status(201).json(newUser))
+    User.query()
+        .findOne({username: user.username})
+        .then(result => {
+            if (result) {
+                response.send({errors: "Username has been taken"})
+            } else {
+                const saltRounds = 12;
+                bcrypt.hash(user.password, saltRounds)
+                    .then(hashedPassword => {
+                        User.query()
+                            .insert({ username: user.username, password_digest: hashedPassword })
+                            .then(newUser => response.status(201).json({id: newUser.id, username: newUser.username}))
+                    })
+            }
         })
 });
 
 router.post('/login', (request, response) => {
     const { user } = request.body;
-
     User.query()
         .findOne({ username: user.username || '' })
+        .withGraphFetched('listings')
         .then(existingUser => {
             if (!existingUser) {
                 response.status(401).json({ error: 'Invalid username or password' })
@@ -38,7 +72,14 @@ router.post('/login', (request, response) => {
                             const secret = process.env.AUTH_SECRET;
                             const payload = { user_id: existingUser.id };
                             const token = jwt.sign(payload, secret);
-                            response.status(200).json({ token, user: existingUser });
+                            response.status(200).json({ 
+                                token,
+                                user: {
+                                    id: existingUser.id, 
+                                    username: existingUser.username, 
+                                    listings: existingUser.listings 
+                                }
+                            });
                         }
                     })
             }
