@@ -20,7 +20,6 @@ router.get('/users/:id', authenticate, (request, response) => {
 
 router.get('/profile', authenticate, (request, response) => {
     const currentUser  = request.user
-    console.log(currentUser)
     User.query()
         .findById(currentUser.id)
         .withGraphFetched('listings')
@@ -42,7 +41,7 @@ router.post('/users', (request, response) => {
         .findOne({username: user.username})
         .then(result => {
             if (result) {
-                response.send({errors: "Username has been taken"})
+                response.send({errors: 'Username has been taken'})
             } else {
                 const saltRounds = 12;
                 bcrypt.hash(user.password, saltRounds)
