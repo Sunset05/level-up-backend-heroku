@@ -5,10 +5,10 @@ const jwt = require('jsonwebtoken');
 const { authenticate } = require('./auth')
 const { User }  = require('../models/user');
 
-router.get('/users', authenticate, (request, response) => {
+router.get('/users', authenticate, (_, response) => {
     User.query()
         .withGraphFetched('listings')
-        .then(users => response.json(users));
+        .then(users => response.send(users));
 });
 
 router.get('/users/:id', authenticate, (request, response) => {
@@ -61,17 +61,17 @@ router.post('/login', (request, response) => {
         .withGraphFetched('listings')
         .then(existingUser => {
             if (!existingUser) {
-                response.status(401).json({ error: 'Invalid username or password' })
+                response.status(401).send({ error: 'Invalid username or password' })
             } else {
                 bcrypt.compare(user.password, existingUser.password_digest)
                     .then(isMatch => {
                         if (!isMatch) {
-                            response.status(401).json({ error: 'Invalid username or password'})
+                            response.status(401).send({ error: 'Invalid username or password'})
                         } else {
                             const secret = process.env.AUTH_SECRET;
                             const payload = { user_id: existingUser.id };
                             const token = jwt.sign(payload, secret);
-                            response.status(200).json({ 
+                            response.status(200).send({ 
                                 token,
                                 user: {
                                     id: existingUser.id, 
