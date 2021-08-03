@@ -6,7 +6,7 @@ exports.up = function(knex) {
         t.integer('receiver').references('user.id');
         t.string('message_body');
         t.boolean('has_been_read');
-        t.timestamp('created_at')
+        t.timestamp('created_at').defaultTo(knex.fn.now());
     })
 };
 
