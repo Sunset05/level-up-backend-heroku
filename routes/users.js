@@ -22,13 +22,15 @@ router.get('/profile', authenticate, (request, response) => {
     const currentUser  = request.user
     User.query()
         .findById(currentUser.id)
-        .withGraphFetched('listings')
+        .withGraphFetched('[listings, sent_messages.[receiver_info], received_messages.[sender_info]]')
         .then(currentUserData => 
             response.status(200)
             .send({user: {
                 id: currentUserData.id,
                 username: currentUserData.username,
-                listings: currentUserData.listings
+                listings: currentUserData.listings,
+                sent_messages: currentUserData.sent_messages,
+                received_messages: currentUserData.received_messages,
                 }}
             )
         )
