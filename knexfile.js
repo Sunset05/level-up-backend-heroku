@@ -1,12 +1,11 @@
 // Update with your config settings.
 
 module.exports = {
-
   development: {
-    client: 'pg',
+    client: "pg",
     connection: {
-      database: 'level_up_backend',
-      password: 'funk'
-    }
+      database: "level_up_backend",
+      password: "funk",
+    },
   },
 };
