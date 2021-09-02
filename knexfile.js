@@ -4,13 +4,6 @@ module.exports = {
   development: {
     client: "pg",
     connection: {
-      database: "level_up_backend",
-      password: "funk",
-    },
-  },
-  production: {
-    client: "pg",
-    connection: {
       connectionString: process.env.DATABASE_URL,
       ssl: { rejectUnauthorized: false },
     },
